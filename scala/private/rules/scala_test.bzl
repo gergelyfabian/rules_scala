@@ -72,7 +72,7 @@ _scala_test_attrs = {
     "_scalatest_reporter": attr.label(
         default = Label("//scala/support:test_reporter"),
     ),
-    "_jacocorunner": attr.label(
+    "jacocorunner": attr.label(
         default = Label("@bazel_tools//tools/jdk:JacocoCoverage"),
     ),
     "_lcov_merger": attr.label(
