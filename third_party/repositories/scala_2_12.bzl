@@ -1,15 +1,15 @@
 artifacts = {
     "io_bazel_rules_scala_scala_library": {
-        "artifact": "org.scala-lang:scala-library:2.12.14",
-        "sha256": "0451dce8322903a6c2aa7d31232b54daa72a61ced8ade0b4c5022442a3f6cb57",
+        "artifact": "org.scala-lang:scala-library:2.12.12",
+        "sha256": "1673ffe8792021f704caddfe92067ed1ec75229907f84380ad68fe621358c925",
     },
     "io_bazel_rules_scala_scala_compiler": {
-        "artifact": "org.scala-lang:scala-compiler:2.12.14",
-        "sha256": "2a1b3fbf9c956073c8c5374098a6f987e3b8d76e34756ab985fc7d2ca37ee113",
+        "artifact": "org.scala-lang:scala-compiler:2.12.12",
+        "sha256": "9dfa682ad7c2859cdcf6a31b9734c8f1ee38e7e391aeafaef91967b6ce819b6b",
     },
     "io_bazel_rules_scala_scala_reflect": {
-        "artifact": "org.scala-lang:scala-reflect:2.12.14",
-        "sha256": "497f4603e9d19dc4fa591cd467de5e32238d240bbd955d3dac6390b270889522",
+        "artifact": "org.scala-lang:scala-reflect:2.12.12",
+        "sha256": "3c502791757c0c8208f00033d8c4d778ed446efa6f49a6f89b59c6f92b347774",
     },
     "io_bazel_rules_scala_scalatest": {
         "artifact": "org.scalatest:scalatest_2.12:3.1.2",
