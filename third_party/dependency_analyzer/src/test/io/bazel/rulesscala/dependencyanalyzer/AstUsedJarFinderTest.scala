@@ -2,8 +2,10 @@ package io.bazel.rulesscala.dependencyanalyzer
 
 import java.nio.file.Files
 import java.nio.file.Path
+
 import io.bazel.rulesscala.io_utils.DeleteRecursively
 import org.scalatest.funsuite._
+
 import scala.tools.nsc.reporters.StoreReporter
 import io.bazel.rulesscala.utils.JavaCompileUtil
 import io.bazel.rulesscala.utils.TestUtil
@@ -56,7 +58,8 @@ class AstUsedJarFinderTest extends AnyFunSuite {
 
     def checkStrictDepsErrorsReported(
       code: String,
-      expectedStrictDeps: List[String]
+      expectedStrictDeps: List[String],
+      anyOf: Boolean = false
     ): List[StoreReporter#Info] = {
       val errors =
         TestUtil.runCompiler(
@@ -73,15 +76,27 @@ class AstUsedJarFinderTest extends AnyFunSuite {
             )
         )
 
-      assert(errors.size == expectedStrictDeps.size)
+      if (!anyOf) {
+        assert(errors.size == expectedStrictDeps.size)
+      }
+
       errors.foreach { err =>
         // We should be emitting errors with positions
         assert(err.pos.isDefined)
       }
 
-      expectedStrictDeps.foreach { dep =>
-        val expectedError = s"Target '$dep' is used but isn't explicitly declared, please add it to the deps"
-        assert(errors.exists(_.msg.contains(expectedError)))
+      val expectedErrors = expectedStrictDeps.map { dep =>
+        s"Target '$dep' is used but isn't explicitly declared, please add it to the deps"
+      }
+
+      if (!anyOf) {
+        expectedErrors.foreach { expectedError =>
+          assert(errors.exists(_.msg.contains(expectedError)))
+        }
+      } else {
+        assert(expectedErrors.count { expectedError =>
+          errors.exists(_.msg.contains(expectedError))
+        } >= 1)
       }
 
       errors
@@ -580,13 +595,29 @@ class AstUsedJarFinderTest extends AnyFunSuite {
              |""".stripMargin
       )
       sandbox.compileWithoutAnalyzer("class UnitTests")
-      sandbox.checkStrictDepsErrorsReported(
-        """
-          |@Category(classOf[UnitTests])
-          |class C
-          |""".stripMargin,
-        expectedStrictDeps = List("UnitTests", "Category")
-      )
+
+      // Scala in versions 2.12.13+ returns only one of the expected strict dep errors.
+      // And does that non-deterministically, it's always only one of the two, but never both of them.
+      // Instruct checkStrictDepsErrorsReported() to check only whether at least "any of" the two errors
+      // was detected, but not require all of them.
+      if (ScalaVersion.Current >= ScalaVersion("2.12.13")) {
+        sandbox.checkStrictDepsErrorsReported(
+          """
+            |@Category(classOf[UnitTests])
+            |class C
+            |""".stripMargin,
+          expectedStrictDeps = List("UnitTests", "Category"),
+          anyOf = true
+        )
+      } else {
+        sandbox.checkStrictDepsErrorsReported(
+          """
+            |@Category(classOf[UnitTests])
+            |class C
+            |""".stripMargin,
+          expectedStrictDeps = List("UnitTests", "Category")
+        )
+      }
     }
   }
 
