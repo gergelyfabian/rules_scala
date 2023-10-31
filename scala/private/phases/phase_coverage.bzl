@@ -60,7 +60,7 @@ def _phase_coverage(ctx, p, srcjars):
             outputs = [output_jar],
             executable = ctx.attr._code_coverage_instrumentation_worker.files_to_run,
             execution_requirements = {"supports-workers": "1"},
-            arguments = [args],
+            arguments = ["--jvm_flag=-Djava.security.manager=allow", args],
         )
 
         replacements = {input_jar: output_jar}

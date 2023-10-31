@@ -32,7 +32,7 @@ def _build_format(ctx):
             file = ctx.actions.declare_file("{}.fmt.output".format(src.short_path))
             files.append(file)
             ctx.actions.run(
-                arguments = ["--jvm_flag=-Dfile.encoding=UTF-8", _format_args(ctx, src, file)],
+                arguments = ["--jvm_flag=-Dfile.encoding=UTF-8", "--jvm_flag=-Djava.security.manager=allow", _format_args(ctx, src, file)],
                 executable = ctx.executable._fmt,
                 outputs = [file],
                 inputs = [ctx.file.config, src],
