@@ -87,7 +87,10 @@ def _run_phases(ctx, builtin_customizable_phases, target):
             global_provider[name] = new_provider
             current_provider = struct(**global_provider)
 
+    print("DefaultInfo before the end: %s" % acculmulated_external_providers["DefaultInfo"].default_runfiles.files)
+
     # The final return of rules implementation
+    print("Final return of rules impl for %s: %s" % (target, acculmulated_external_providers.values()))
     return acculmulated_external_providers.values()
 
 # A method to pass in phase provider

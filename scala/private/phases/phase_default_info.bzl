@@ -35,6 +35,8 @@ def phase_default_info(ctx, p):
         if hasattr(phase, "runfiles"):
             runfiles.append(phase.runfiles)
 
+    print("DefaultInfo runfiles.files after wrapping: %s" % ctx.runfiles(transitive_files = depset(direct = direct, transitive = runfiles), collect_data = True).files)
+
     return struct(
         external_providers = {
             "DefaultInfo": DefaultInfo(
