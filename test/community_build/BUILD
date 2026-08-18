@@ -43,12 +43,14 @@ downstream_test(
 # dicer covers rules_scala's scala_proto/ScalaPB (gRPC) codegen path and
 # Scala 2.12 -- neither exercised by joern_test above (Scala 3, proto-free).
 #
-# Unlike joern above, nothing is excluded here: `caching/util:etcd_suite`,
-# `dicer/common:etcd_bootstrapper_test`, and `dicer/assigner/...` each need
-# a downloaded `etcd_release` binary (`//bazel:etcd.bzl`) hardcoded to a
-# linux-amd64 release, so this is linux-only: the binary can't execute at
-# all on other architectures ("etcd exited with code 126", e.g.
-# darwin-arm64).
+# `caching/util:etcd_suite`, `dicer/common:etcd_bootstrapper_test`, and
+# `dicer/assigner/...` each need a downloaded `etcd_release` binary
+# (`//bazel:etcd.bzl`) hardcoded to a linux-amd64 release, so this is
+# linux-only: the binary can't execute at all on other architectures
+# ("etcd exited with code 126", e.g. darwin-arm64).
+#
+# algorithm_chaos_test is excluded below: it asserts a randomly-seeded
+# statistical bound, flaky by construction.
 #
 # size = "enormous" for the same reason as joern_test above: 163 nested
 # tests, several of them minutes-long, can exceed this sh_test's own
@@ -61,5 +63,6 @@ downstream_test(
     target_compatible_with = ["@platforms//os:linux"],
     targets = [
         "//...",
+        "-//dicer/assigner/algorithm:algorithm_chaos_test",
     ],
 )
