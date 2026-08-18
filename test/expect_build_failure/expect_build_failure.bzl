@@ -15,6 +15,12 @@ runfiles, and boilerplate tags on every call.
   only passes under a specific `--test_filter` or inherited env var).
 
 All four share the same script and nested-Bazel plumbing.
+
+A label inside a `build_args`/`bazel_args` flag value (e.g.
+`--extra_toolchains=//pkg:toolchain`) is passed through as-is: unlike
+`target`, it is not absolutized against the caller's package, because the
+nested `bazel` runs from the workspace root. Always write such a label out in
+full, even for a toolchain defined in the same package as the caller.
 """
 
 load("@rules_shell//shell:sh_test.bzl", "sh_test")

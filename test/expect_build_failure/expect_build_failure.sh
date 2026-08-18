@@ -169,26 +169,38 @@ if [[ "${expect_success}" != "true" && "${status}" -eq 0 ]]; then
   exit 1
 fi
 
-for expect_file in ${expect_files[@]+"${expect_files[@]}"}; do
-  resolved="$(_resolve_message_file "${expect_file}")"
-  expected_message="$(tr -d '\n' <"${resolved}")"
-  if ! grep --quiet --fixed-strings -- "${expected_message}" <<<"${output}"; then
-    echo "Nested \`bazel ${command}\` finished as expected, but output did not contain the expected message." >&2
-    echo "Expected (from ${expect_file}): ${expected_message}" >&2
-    echo "Output:" >&2
-    echo "${output}" >&2
-    exit 1
-  fi
-done
+# Checks each file in $2... against $output, failing if its (fixed-string)
+# content is found and $1 is "false", or missing and $1 is "true".
+_check_files() {
+  local must_match="$1"
+  shift
 
-for reject_file in ${reject_files[@]+"${reject_files[@]}"}; do
-  resolved="$(_resolve_message_file "${reject_file}")"
-  rejected_message="$(tr -d '\n' <"${resolved}")"
-  if grep --quiet --fixed-strings -- "${rejected_message}" <<<"${output}"; then
-    echo "Nested \`bazel ${command}\` finished as expected, but output contained a message that should be absent." >&2
-    echo "Rejected (from ${reject_file}): ${rejected_message}" >&2
+  local file resolved text matched
+  for file in "$@"; do
+    resolved="$(_resolve_message_file "${file}")"
+    text="$(tr -d '\n' <"${resolved}")"
+
+    if grep --quiet --fixed-strings -- "${text}" <<<"${output}"; then
+      matched="true"
+    else
+      matched="false"
+    fi
+    if [[ "${matched}" == "${must_match}" ]]; then
+      continue
+    fi
+
+    if [[ "${must_match}" == "true" ]]; then
+      echo "Nested \`bazel ${command}\` finished as expected, but output did not contain the expected message." >&2
+      echo "Expected (from ${file}): ${text}" >&2
+    else
+      echo "Nested \`bazel ${command}\` finished as expected, but output contained a message that should be absent." >&2
+      echo "Rejected (from ${file}): ${text}" >&2
+    fi
     echo "Output:" >&2
     echo "${output}" >&2
     exit 1
-  fi
-done
+  done
+}
+
+_check_files true ${expect_files[@]+"${expect_files[@]}"}
+_check_files false ${reject_files[@]+"${reject_files[@]}"}
